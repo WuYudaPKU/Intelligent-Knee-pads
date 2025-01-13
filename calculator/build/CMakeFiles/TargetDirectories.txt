@@ -1,0 +1,3 @@
+/Users/chenyihao/Intelligent-Knee-pads/Intelligent-Knee-pads/calculator/build/CMakeFiles/calculator.dir
+/Users/chenyihao/Intelligent-Knee-pads/Intelligent-Knee-pads/calculator/build/CMakeFiles/edit_cache.dir
+/Users/chenyihao/Intelligent-Knee-pads/Intelligent-Knee-pads/calculator/build/CMakeFiles/rebuild_cache.dir
