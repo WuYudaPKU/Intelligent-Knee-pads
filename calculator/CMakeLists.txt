@@ -1,14 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Project name
+# 设置项目名
 project(Calculator)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# 设置 C++ 标准
+set(CMAKE_CXX_STANDARD 11)
 
-# Add source files
-add_executable(calculator
+# 指定源文件
+set(SOURCE_FILES
     src/main.cpp
     src/calculator.cpp
 )
+
+# 创建可执行文件
+add_executable(calculator ${SOURCE_FILES})

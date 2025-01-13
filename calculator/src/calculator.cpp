@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 double Calculator::add(double a, double b) {
+    // Implementation needed to match the header declaration
     return a + b;
 }
 
