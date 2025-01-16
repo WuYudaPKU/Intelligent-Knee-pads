@@ -2,15 +2,17 @@
 % 2023.10.25   Yutong Shi    
 
 addpath('quaternion_library');      % 添加四元数库
-close all;                          
-clear;                              
-clc;   
+close all;  clear;  clc;   
                                
-%% 传感器数据预处理及绘制,[num,txt,raw]是固定的数据读取方式
-%% num将储存所有的纯数值部分，txt保存所有的非纯数值部分，raw储存所有的数据（元胞形式）
+% 传感器数据预处理及绘制
+% [num,txt,raw]是固定的数据读取方式
+% num将储存所有的纯数值部分
+% txt保存所有的非纯数值部分
+% raw储存所有的数据（元胞形式）
 [num,txt,raw] = xlsread('D:\储存\KneesPad_wyd\Intelligent-Knee-pads\石师姐代码\data\data\1_imu_data.xlsx');
 
-Accelerometer = num(:,1:3); %%根据原始数据，提取所有行的1-3列（加速度的xyz）
+Accelerometer = num(:,1:3); %%根据原始数据，提取所有行的1-3列（分别加速度的xyz）
+Accelerometer= Accelerometer*9.807; %原始的加速度数据单位是g
 Gyroscope = num(:,4:6);  %%角速度（xyz）
 Magnetometer = num(:,10:12);  %%磁场（xyz）
 
@@ -20,6 +22,7 @@ timechar = char(timeStamp);
 for i = 1: length(timeStamp)
     split_timecell(i,:) = strsplit(timechar(i,:), ':');    
 end
+
 % 获取 Cell 数组的维度
 rows = size(split_timecell, 1);
 cols = size(split_timecell, 2);
@@ -47,6 +50,7 @@ end
 %     Accelerometer(i,:) = ([1 0 0; 0 0 1; 0 -1 0]' *  Accelerometer(i,:)')';
 % end
 
+%绘图，绘制三个方向角速度数据
 figure('Name', 'Sensor Data');
 axis(1) = subplot(2,1,1);                   %表示一个二行一列的图中第一个位置
 hold on;
@@ -59,6 +63,7 @@ ylabel('Angular rate (deg/s)');             %注意原始陀螺仪数据是角度值
 title('Gyroscope');
 hold off;
 
+%绘图，绘制三个方向加速度数据
 axis(1) = subplot(2,1,2);                   %表示一个二行一列的图中第二个位置
 hold on;
 plot(time, Accelerometer(:,1));
@@ -66,12 +71,12 @@ plot(time, Accelerometer(:,2));
 plot(time, Accelerometer(:,3));
 legend('X', 'Y', 'Z');
 xlabel('Time (s)');
-ylabel('Acceleration (g)');             %注意原始陀螺仪数据是重力加速度为一个单位
+ylabel('Acceleration ');
 title('Accelerometer');
 hold off;
 linkaxes(axis, 'x');                        %将一幅图中的三个图像坐标轴同步
 
-%% 处理数据
+% 处理数据
 % SamplePeriod = 0.04;
 quaternion = zeros(length(time), 4);
 quaternion(1,:) = [1 0 0 0];
@@ -100,6 +105,7 @@ for i = 2:length(time)
     end
 end
 
+% 绘制欧拉角数据
 figure('Name', 'Euler Angles');
 set(gcf,'unit','centimeters','position',[10,10,8,6])
 hold on;
@@ -135,5 +141,30 @@ hold off;
 % lgd=legend('x', 'y', 'z');
 % hold off;
 
+% 初始化线性加速度
+linear_acc = zeros(length(time), 3);
 
+% 估算重力加速度方向 (假设重力加速度在全局z方向)
+gravity = [0, 0, 9.807]; % 重力加速度 (m/s^2)
 
+% 去除重力加速度
+for i = 1:length(time)
+    % 获取当前时刻的旋转矩阵 R
+    Ri = R(:,:,i); 
+    % 将加速度从IMU坐标系转换到全局坐标系
+    acc_global = (Ri * Accelerometer(i,:)')'; 
+    % 计算去除重力后的线性加速度
+    linear_acc(i,:) = acc_global - gravity; 
+end
+
+% 绘制线性加速度
+figure('Name', 'Linear Acceleration');
+hold on;
+plot(time, linear_acc(:,1),'color',[0.85,0.33,0.1],'LineWidth',1.5);
+plot(time, linear_acc(:,2),'color',[0,0.45,0.74],'LineWidth',1.5);
+plot(time, linear_acc(:,3),'color',[0.93,0.69,0.13],'LineWidth',1.5);
+xlabel('Time (s)');
+ylabel('Linear Acceleration (m/s^2)');
+title('Linear Acceleration');
+legend('X', 'Y', 'Z');
+hold off;
